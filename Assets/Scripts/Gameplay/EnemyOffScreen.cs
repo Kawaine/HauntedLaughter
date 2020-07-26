@@ -14,7 +14,7 @@ namespace Platformer.Gameplay
 
         public override void Execute()
         {
-            sanity.withinRangeOfEnemy = false;
+            sanity.withinRangeOfEnemy_ = false;
         }
     }
 }

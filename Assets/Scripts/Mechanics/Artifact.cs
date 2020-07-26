@@ -31,10 +31,10 @@ namespace Platformer.Mechanics
         internal int frame = 0;
         internal bool investigated = false;
 
-        [SerializeField] private KeyCode investigateKey = KeyCode.None;
+        [SerializeField] public KeyCode investigateKey = KeyCode.None;
         [SerializeField] private GameObject investigateUI = null;
-        [SerializeField] private TextMeshProUGUI investigateText;
-        private bool playerNear = false;
+        [SerializeField] private TextMeshProUGUI investigateText = null;
+        public bool playerNear = false;
 
         void Awake()
         {
@@ -67,9 +67,7 @@ namespace Platformer.Mechanics
 
         IEnumerator OnPlayerEnter(PlayerController player)
         {
-            //investigateUI.transform.localPosition += Vector3.down;
             investigateUI.SetActive(true);
-            //investigateUI.transform.DOLocalMove(Vector3.up / 2, 0.5f);
             while (playerNear)
             {
                 if(Input.GetKeyDown(investigateKey))
@@ -78,12 +76,10 @@ namespace Platformer.Mechanics
                     {
                         frame = 0;
                         sprites = investigateAnimation;
-                        //send an event into the gameplay system to perform some behaviour.
-                        var ev = Schedule<PlayerArtifactInvestigate>();
-                        ev.artifact = this;
-                        ev.player = player;
+                        investigated = true;
+                        ArtifactController.instance.artifactsRemaining_--;
+                        AudioSource.PlayClipAtPoint(artifactCollectAudio, transform.position);
                         investigateText.text = gameObject.name;
-                        //disable the gameObject and remove it from the controller update list.
                     }
                 }
                 yield return null;

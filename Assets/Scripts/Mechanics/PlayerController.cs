@@ -5,6 +5,7 @@ using Platformer.Gameplay;
 using static Platformer.Core.Simulation;
 using Platformer.Model;
 using Platformer.Core;
+using Sirenix.OdinInspector;
 
 namespace Platformer.Mechanics
 {
@@ -23,7 +24,7 @@ namespace Platformer.Mechanics
         /// <summary>
         /// Max horizontal speed of the player.
         /// </summary>
-        public float maxSpeed = 7;
+        public float speed = 7;
         /// <summary>
         /// Initial jump velocity at the start of a jump.
         /// </summary>
@@ -35,11 +36,14 @@ namespace Platformer.Mechanics
         /*internal new*/ public AudioSource audioSource;
         public Sanity sanity;
         public bool controlEnabled = true;
+        [MinMaxSlider(-2, 0)] public Vector2 yMovementRange = Vector2.zero;
 
         bool jump;
         Vector2 move;
         SpriteRenderer spriteRenderer;
         internal Animator animator;
+        internal Rigidbody2D rigbodRef;
+        private Vector2 moveVelocity;
         readonly PlatformerModel model = Simulation.GetModel<PlatformerModel>();
 
         public Bounds Bounds => collider2d.bounds;
@@ -58,6 +62,7 @@ namespace Platformer.Mechanics
             sanity = GetComponent<Sanity>();
             audioSource = GetComponent<AudioSource>();
             collider2d = GetComponent<Collider2D>();
+            rigbodRef = GetComponent<Rigidbody2D>();
             spriteRenderer = GetComponent<SpriteRenderer>();
             animator = GetComponent<Animator>();
         }
@@ -66,22 +71,71 @@ namespace Platformer.Mechanics
         {
             if (controlEnabled)
             {
-                move.x = Input.GetAxis("Horizontal");
-                if (jumpState == JumpState.Grounded && Input.GetButtonDown("Jump"))
+                //move.x = Input.GetAxis("Horizontal");
+                Move();
+                /*if (jumpState == JumpState.Grounded && Input.GetButtonDown("Jump"))
                     jumpState = JumpState.PrepareToJump;
                 else if (Input.GetButtonUp("Jump"))
                 {
                     stopJump = true;
                     Schedule<PlayerStopJump>().player = this;
-                }
+                }*/
             }
             else
             {
                 move.x = 0;
             }
-            UpdateJumpState();
-            base.Update();
+            //UpdateJumpState();
+            //base.Update();
         }
+
+        void Move()
+        {
+            Vector2 moveInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+            moveVelocity = moveInput.normalized;
+            if(moveVelocity.x > 0)
+            {
+                animator.SetBool("WalkLeft", false);
+                animator.SetBool("WalkRight", true);
+                animator.SetBool("WalkForward", false);
+                animator.SetBool("WalkBack", false);
+            }
+            else if(moveVelocity.x < 0)
+            {
+                animator.SetBool("WalkLeft", true);
+                animator.SetBool("WalkRight", false);
+                animator.SetBool("WalkForward", false);
+                animator.SetBool("WalkBack", false);
+            }
+            else if(moveVelocity.y < 0)
+            {
+                animator.SetBool("WalkLeft", false);
+                animator.SetBool("WalkRight", false);
+                animator.SetBool("WalkForward", true);
+                animator.SetBool("WalkBack", false);
+            }
+            else if(moveVelocity.y > 0)
+            {
+                animator.SetBool("WalkLeft", false);
+                animator.SetBool("WalkRight", false);
+                animator.SetBool("WalkForward", false);
+                animator.SetBool("WalkBack", true);
+            }
+            else if(moveVelocity == Vector2.zero)
+            {
+                animator.SetBool("WalkLeft", false);
+                animator.SetBool("WalkRight", false);
+                animator.SetBool("WalkForward", false);
+                animator.SetBool("WalkBack", false);
+            }
+            moveVelocity *= speed;
+        }
+
+        protected override void FixedUpdate()
+        {
+            rigbodRef.MovePosition(rigbodRef.position + moveVelocity * Time.deltaTime);
+        }
+
 
         void UpdateJumpState()
         {
@@ -135,9 +189,9 @@ namespace Platformer.Mechanics
                 spriteRenderer.flipX = true;
 
             animator.SetBool("grounded", IsGrounded);
-            animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / maxSpeed);
+            animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / speed);
 
-            targetVelocity = move * maxSpeed;
+            targetVelocity = move * speed;
         }
 
         public enum JumpState

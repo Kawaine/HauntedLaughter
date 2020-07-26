@@ -8,7 +8,8 @@ namespace Platformer.Mechanics
     {
         public static ArtifactController instance = null;
 
-        [SerializeField] internal Artifact[] artifacts;
+        [SerializeField] private Artifact[] artifacts = null;
+        [SerializeField] private EnemyController enemy = null;
 
         private int artifactsRemaining = 6;
         public int artifactsRemaining_
@@ -20,6 +21,7 @@ namespace Platformer.Mechanics
             set
             {
                 artifactsRemaining = value;
+                enemy.currentEmotion_ += 1;
             }
         }
 

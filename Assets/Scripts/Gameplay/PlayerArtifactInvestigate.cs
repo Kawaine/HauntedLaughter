@@ -17,13 +17,7 @@ namespace Platformer.Gameplay
 
         public override void Execute()
         {
-            AudioSource.PlayClipAtPoint(artifact.artifactCollectAudio, artifact.transform.position);
-            if(!artifact.investigated)
-            {
-                artifact.investigated = true;
-                ArtifactController.instance.artifactsRemaining_--;
 
-            }
         }
     }
 }

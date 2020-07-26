@@ -1,4 +1,5 @@
 ﻿using DG.Tweening;
+using Platformer.Mechanics;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,7 +7,12 @@ using UnityEngine.UI;
 
 public class Eye : MonoBehaviour
 {
+    public PlayerController player;
     public KeyCode closeEye;
+    public CameraFilterPack_Atmosphere_Rain rain;
+    public AudioSource breathein;
+    public AudioSource heartbeat;
+    public AudioSource breatheout;
 
     public float eyeAlphaChangePerTick = 5f;
 
@@ -32,15 +38,25 @@ public class Eye : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(closeEye))
+        if(player.controlEnabled)
         {
-            eyeImage.DOKill();
-            eyeImage.DOFade(255f, 0.15f);
-        }
-        else if(Input.GetKeyUp(closeEye))
-        {
-            eyeImage.DOKill();
-            eyeImage.DOFade(0f, 0.15f);
+            closedEyePercentage = eyeImage.color.a;
+            if (Input.GetKeyDown(closeEye))
+            {
+                breathein.Play();
+                heartbeat.Play();
+                rain.enabled = false;
+                eyeImage.DOKill();
+                eyeImage.DOFade(255f, 0.15f);
+            }
+            if (Input.GetKeyUp(closeEye))
+            {
+                heartbeat.Stop();
+                breatheout.Play();
+                rain.enabled = true;
+                eyeImage.DOKill();
+                eyeImage.DOFade(0f, 0.15f);
+            }
         }
     }
 }

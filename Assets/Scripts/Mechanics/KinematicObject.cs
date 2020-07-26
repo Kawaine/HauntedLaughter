@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Sirenix.OdinInspector;
 
 namespace Platformer.Mechanics
 {
     /// <summary>
     /// Implements game physics for some in game entity.
     /// </summary>
-    public class KinematicObject : MonoBehaviour
+    public class KinematicObject : SerializedMonoBehaviour
     {
         /// <summary>
         /// The minimum normal (dot product) considered suitable for the entity sit on.
@@ -73,7 +74,7 @@ namespace Platformer.Mechanics
         protected virtual void OnEnable()
         {
             body = GetComponent<Rigidbody2D>();
-            body.isKinematic = true;
+            //body.isKinematic = true;
         }
 
         protected virtual void OnDisable()
@@ -102,10 +103,10 @@ namespace Platformer.Mechanics
         protected virtual void FixedUpdate()
         {
             //if already falling, fall faster than the jump speed, otherwise use normal gravity.
-            if (velocity.y < 0)
-                velocity += gravityModifier * Physics2D.gravity * Time.deltaTime;
-            else
-                velocity += Physics2D.gravity * Time.deltaTime;
+           // if (velocity.y < 0)
+                //velocity += gravityModifier * Physics2D.gravity * Time.deltaTime;
+           // else
+            //velocity += Physics2D.gravity * Time.deltaTime;
 
             velocity.x = targetVelocity.x;
 
@@ -144,7 +145,7 @@ namespace Platformer.Mechanics
                         // if moving up, change the groundNormal to new surface normal.
                         if (yMovement)
                         {
-                            groundNormal = currentNormal;
+                           groundNormal = currentNormal;
                             currentNormal.x = 0;
                         }
                     }
